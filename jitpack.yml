@@ -1,0 +1,5 @@
+# JitPack construit la bibliothèque à chaque tag demandé (./gradlew publishToMavenLocal).
+# Gradle 9 exige un JDK 17 pour tourner ; le JDK 21 de compilation est ensuite provisionné par la
+# toolchain (foojay, settings.gradle).
+jdk:
+  - openjdk17

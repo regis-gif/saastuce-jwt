@@ -1,0 +1,68 @@
+// Vérification des jetons Supabase Auth, commune aux backends Saastuce (marcel-chantier-backend,
+// saastuce-billing-backend). Publiée par JitPack à partir des tags Git : voir README.md.
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'checkstyle'
+}
+
+group = 'com.github.regis-gif'
+version = '0.0.0-SNAPSHOT'
+
+java {
+    // 21 et non 25 : rien ici n'en a besoin, et une bibliothèque se compile pour le plus ancien
+    // JDK qui la fera tourner. Les backends, en Java 25, la consomment sans rien changer.
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+def jjwtVersion = '0.13.0'
+
+dependencies {
+    // Le BOM Spring Boot fixe les versions Spring ; il n'est pas réexporté aux applications, qui
+    // importent le leur.
+    implementation platform('org.springframework.boot:spring-boot-dependencies:4.1.1')
+    testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.1.1')
+
+    // RestClient.Builder figure dans le constructeur public de SupabaseJwtService.
+    api 'org.springframework:spring-web'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.slf4j:slf4j-api'
+
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    testImplementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+checkstyle {
+    toolVersion = '14.1.0'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    maxWarnings = 0
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}

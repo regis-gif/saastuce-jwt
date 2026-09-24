@@ -1,0 +1,80 @@
+# Le style du projet, dans le seul fichier que tous les éditeurs lisent.
+#
+# Il existait auparavant un schéma IntelliJ nommé « Marcel », désigné par
+# .idea/codeStyles/codeStyleConfig.xml — mais un schéma global vit dans le profil utilisateur de
+# chaque poste, et .idea/ est dans .gitignore : celui-ci n'était installé nulle part, si bien que
+# l'IDE retombait sur ses propres réglages et produisait du code que Checkstyle refusait.
+#
+# Ce qui suit reprend exactement config/checkstyle/checkstyle.xml. Checkstyle constate, il ne
+# corrige pas ; ce fichier-ci est ce qui évite d'avoir à corriger. Les deux doivent bouger ensemble.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json,xml}]
+indent_size = 2
+
+[*.java]
+indent_size = 4
+# Une ligne qui déborde repart huit espaces plus loin, jamais quatre : à quatre, la suite d'une
+# signature s'aligne sur le corps de la méthode et l'on ne voit plus où finissent les paramètres.
+ij_continuation_indent_size = 8
+# 120 est le plafond dur de Checkstyle ; le code écrit vise 100.
+max_line_length = 120
+
+# Pas d'alignement sur la parenthèse ouvrante. Il est joli sur l'écran de celui qui l'écrit, et
+# illisible dès qu'on renomme la méthode : tout le bloc se décale, et le diff devient un mur.
+ij_java_align_multiline_parameters = false
+ij_java_align_multiline_parameters_in_calls = false
+ij_java_align_multiline_resources = false
+ij_java_align_multiline_ternary_operation = false
+ij_java_align_multiline_binary_operation = false
+ij_java_align_multiline_throws_list = false
+ij_java_align_multiline_array_initializer_expression = false
+ij_java_align_multiline_assignment = false
+ij_java_align_multiline_chained_methods = false
+ij_java_align_multiline_extends_list = false
+ij_java_align_multiline_for = false
+ij_java_align_throws_keyword = false
+
+# Ordre des imports : statiques, JDK, tiers, puis les nôtres — chaque groupe séparé par une ligne
+# vide, et trié à l'intérieur. C'est CustomImportOrder côté Checkstyle.
+ij_java_imports_layout = $*, |, java.**, javax.**, |, *, |, com.marcel.**
+ij_java_layout_static_imports_separately = true
+# Jamais d'import à la demande : un astérisque cache ce qui entre dans le fichier, et deux classes
+# de même nom simple finissent par se rencontrer.
+ij_java_class_count_to_use_import_on_demand = 999
+ij_java_names_count_to_use_static_import_on_demand = 999
+ij_java_insert_inner_class_imports = false
+
+# Les annotations de classe, de méthode et de champ vont sur leur propre ligne — @Id compris, ce
+# que AnnotationLocation impose. Celles d'un paramètre restent en ligne : un composant de record
+# porte son @JsonProperty à côté de lui.
+ij_java_class_annotation_wrap = split_into_lines
+ij_java_method_annotation_wrap = split_into_lines
+ij_java_field_annotation_wrap = split_into_lines
+ij_java_parameter_annotation_wrap = off
+ij_java_variable_annotation_wrap = off
+
+# Un javadoc qui tient sur une ligne y reste : le code en est plein, et l'IDE les dépliait en trois
+# lignes au premier reformatage. De même pour un corps de classe anonyme vide, écrit « {} ».
+ij_java_doc_do_not_wrap_if_one_line = true
+ij_java_doc_preserve_line_breaks = false
+ij_java_doc_add_p_tag_on_empty_lines = false
+ij_java_doc_keep_empty_lines = false
+ij_java_keep_simple_classes_in_one_line = true
+ij_java_keep_simple_methods_in_one_line = true
+ij_java_keep_simple_lambdas_in_one_line = true
+ij_java_keep_simple_blocks_in_one_line = false
+
+ij_java_use_relative_indents = false
+ij_java_keep_indents_on_empty_lines = false
+ij_java_spaces_within_braces = false
+ij_java_wrap_long_lines = false

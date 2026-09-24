@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.sw?
+
+# OS
+.DS_Store
+
+# Environment
+.env
+.env.*
+!.env.example
+supabase/.temp/
+
+# Claude Code — shared project config, overriding a global ignore of .claude
+!.claude/
+.claude/settings.local.json

@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  Ruleset for marcel-chantier-api.
+
+  Derived from the codebase's existing hand-maintained style rather than from
+  google_checks.xml or sun_checks.xml, both of which disagree with it (google_checks
+  mandates 2-space indentation; sun_checks demands Javadoc everywhere).
+
+  Checkstyle validates without rewriting, so it cannot reformat code. Annotation
+  placement is enforced here (AnnotationLocation) precisely because the auto-formatters
+  we evaluated insisted on collapsing `@Id` onto the field line.
+
+  Rules are limited to things that are either real defects or settled convention here.
+  Subjective checks (Javadoc, naming beyond defaults, magic numbers) are deliberately
+  omitted — they would flag existing code without making it better.
+-->
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!--
+      Gradle sets config_loc to the config directory; the CheckStyle-IDEA plugin resolves
+      it from this file's own location. The default/optional pair keeps an unresolved
+      config_loc from hard-failing a scan. This cannot degrade silently: if the
+      suppressions are skipped, MarcelChantierApplication immediately trips
+      HideUtilityClassConstructor.
+    -->
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}/suppressions.xml" default="suppressions.xml"/>
+        <property name="optional" value="true"/>
+    </module>
+
+    <module name="NewlineAtEndOfFile"/>
+    <module name="FileTabCharacter"/>
+
+    <module name="LineLength">
+        <!-- The codebase wraps around 100; 120 is the hard ceiling. Longest line today is 115. -->
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package .*|^import .*|^\s*//\s*https?://"/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <!--
+          Imports: no wildcards, four groups separated by a blank line and sorted
+          alphabetically within each — static, then java/javax, then third-party
+          (jakarta, org.springframework, io.jsonwebtoken), then this project's own
+          com.marcel.* last. Mirrors the grouping used across the author's other
+          projects, with specialImportsRegExp pointed at this project's base package.
+        -->
+        <module name="AvoidStarImport"/>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="CustomImportOrder">
+            <property name="customImportOrderRules"
+                      value="STATIC###STANDARD_JAVA_PACKAGE###THIRD_PARTY_PACKAGE###SPECIAL_IMPORTS"/>
+            <property name="specialImportsRegExp" value="^com\.marcel\."/>
+            <property name="sortImportsInGroupAlphabetically" value="true"/>
+            <property name="separateLineBetweenGroups" value="true"/>
+        </module>
+
+        <!-- Layout: 4-space indent, 8-space continuation. -->
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="8"/>
+            <property name="lineWrappingIndentation" value="8"/>
+            <property name="arrayInitIndent" value="4"/>
+        </module>
+
+        <!-- Annotations go on their own line, including short ones like @Id. -->
+        <module name="AnnotationLocation">
+            <property name="allowSamelineMultipleAnnotations" value="false"/>
+            <property name="allowSamelineSingleParameterlessAnnotation" value="false"/>
+            <property name="allowSamelineParameterizedAnnotation" value="false"/>
+        </module>
+        <module name="MissingOverride"/>
+
+        <!-- Braces and modifiers. -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Correctness. -->
+        <module name="EqualsHashCode"/>
+        <module name="StringLiteralEquality"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="EmptyStatement"/>
+        <module name="FallThrough"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="DefaultComesLast"/>
+        <module name="IllegalThrows"/>
+        <module name="NoFinalizer"/>
+
+        <!-- Structure. -->
+        <module name="OneTopLevelClass"/>
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="ArrayTypeStyle"/>
+        <module name="UpperEll"/>
+        <module name="OneStatementPerLine"/>
+
+    </module>
+</module>
