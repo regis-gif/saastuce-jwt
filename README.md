@@ -43,7 +43,10 @@ JitPack construit la bibliothèque à partir d'un tag Git (`jitpack.yml`) :
 git tag v1.1.0 && git push origin v1.1.0
 ```
 
-Renovate propose ensuite la montée de version dans les backends.
+La CI (`check`, puis `publication` sur un tag) fait construire la version par JitPack et échoue
+si la construction échoue. Renovate propose ensuite la montée de version dans les backends — et tient
+à jour les dépendances de la bibliothèque elle-même (Spring Boot, jjwt), avec fusion automatique des
+mises à jour mineures et correctives quand la CI passe.
 
 ## Développement
 
