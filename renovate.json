@@ -1,27 +1,44 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
+  "baseBranches": [
+    "devel"
+  ],
   "timezone": "Europe/Paris",
-  "schedule": ["before 6am on monday"],
-  "labels": ["dependencies"],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "labels": [
+    "dependencies"
+  ],
   "dependencyDashboard": true,
   "packageRules": [
     {
       "description": "Mineures et correctifs : regroupés en une PR, fusionnée automatiquement si la CI passe.",
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "groupName": "dépendances mineures et correctifs",
       "automerge": true,
       "automergeType": "pr"
     },
     {
       "description": "En 0.x, une montée mineure peut casser l'API : pas de fusion automatique.",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "matchCurrentVersion": "<1.0.0",
       "automerge": false
     },
     {
       "description": "Majeures : une PR par dépendance, relue à la main.",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": false
     }
   ]
