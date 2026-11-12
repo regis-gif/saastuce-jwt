@@ -179,6 +179,54 @@ class SupabaseJwtServiceTest {
         assertThat(service.parseToken(es256Token(UUID.randomUUID(), "a@b.test"))).isPresent();
     }
 
+    /**
+     * Une ressource qui sert d'autres clients que le produit (un serveur MCP) choisit elle-même
+     * ceux qu'elle accepte : le client OAuth du produit n'y est plus la seule réponse.
+     */
+    @Test
+    void letsTheCallerChooseTheAcceptedOAuthClients() {
+        SupabaseJwtService service =
+                jwksService(jwksJson(signingKeys, KID), "marcel-chantier-client-id");
+
+        String claude = tokenForClient("claude-client-id");
+        String autre = tokenForClient("autre-client-id");
+
+        assertThat(service.parseToken(claude, "claude-client-id"::equals)).isPresent();
+        assertThat(service.parseToken(autre, "claude-client-id"::equals)).isEmpty();
+        assertThat(service.parseToken(claude)).isEmpty();
+    }
+
+    /** Le choix de l'appelant ne lève pas les autres contrôles : l'émetteur reste exigé. */
+    @Test
+    void stillRequiresTheIssuerWhenTheCallerChoosesTheClients() {
+        SupabaseJwtService service = jwksService(jwksJson(signingKeys, KID));
+
+        String token =
+                es256TokenBuilder(UUID.randomUUID(), "a@b.test")
+                        .issuer("https://autre-projet.supabase.co/auth/v1")
+                        .claim("client_id", "claude-client-id")
+                        .signWith(signingKeys.getPrivate(), Jwts.SIG.ES256)
+                        .compact();
+
+        assertThat(service.parseToken(token, id -> true)).isEmpty();
+    }
+
+    /** Sans claim {@code client_id}, le choix de l'appelant n'est pas consulté. */
+    @Test
+    void acceptsATokenWithoutAClientIdClaimWhateverTheCallerAccepts() {
+        SupabaseJwtService service = jwksService(jwksJson(signingKeys, KID));
+
+        assertThat(service.parseToken(es256Token(UUID.randomUUID(), "a@b.test"), id -> false))
+                .isPresent();
+    }
+
+    private String tokenForClient(String clientId) {
+        return es256TokenBuilder(UUID.randomUUID(), "a@b.test")
+                .claim("client_id", clientId)
+                .signWith(signingKeys.getPrivate(), Jwts.SIG.ES256)
+                .compact();
+    }
+
     private SupabaseJwtService jwksService(String jwksBody) {
         return jwksService(jwksBody, "");
     }

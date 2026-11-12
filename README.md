@@ -31,6 +31,11 @@ saastuce:
 
 ```java
 supabaseJwtService.parseToken(token)   // Optional<SupabaseUserClaims(userId, email)>
+
+// Une ressource servie à d'autres clients OAuth que le produit (un serveur MCP, dont les jetons
+// sont délivrés aux clients de Claude ou de ChatGPT) choisit elle-même ceux qu'elle accepte.
+// Signature et émetteur sont vérifiés pareil ; un jeton sans client_id reste accepté.
+supabaseJwtService.parseToken(token, mcpClientIds::contains)
 ```
 
 Le filtre HTTP reste propre à chaque application.

@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 import javax.crypto.SecretKey;
 
 import io.jsonwebtoken.Claims;
@@ -106,6 +107,24 @@ public class SupabaseJwtService {
      *     autre client OAuth — jamais d'exception, le filtre n'a qu'à répondre 401
      */
     public Optional<SupabaseUserClaims> parseToken(String token) {
+        return parseToken(token, tokenClientId -> clientId.isBlank() || tokenClientId.equals(clientId));
+    }
+
+    /**
+     * Vérifie un jeton en laissant l'appelant choisir les clients OAuth qu'il accepte.
+     *
+     * <p>Pour une ressource qui ne sert pas le client OAuth du produit lui-même : un serveur MCP,
+     * par exemple, reçoit des jetons délivrés aux clients des assistants IA (Claude, ChatGPT),
+     * que {@code saastuce.supabase.client-id} refuserait. Signature et émetteur sont vérifiés de
+     * la même façon ; seul le contrôle du client change. Un jeton sans claim {@code client_id}
+     * reste accepté, comme dans {@link #parseToken(String)}.
+     *
+     * @param token le jeton, sans le préfixe {@code Bearer}
+     * @param clientAccepte reçoit le {@code client_id} du jeton, quand il en porte un
+     * @return l'utilisateur, ou vide pour tout jeton invalide, expiré, d'un autre émetteur ou d'un
+     *     client que {@code clientAccepte} refuse
+     */
+    public Optional<SupabaseUserClaims> parseToken(String token, Predicate<String> clientAccepte) {
         if (!isConfigured()) {
             return Optional.empty();
         }
@@ -121,7 +140,7 @@ public class SupabaseJwtService {
             }
             Claims claims = parser.build().parseSignedClaims(token).getPayload();
             String tokenClientId = claims.get("client_id", String.class);
-            if (!clientId.isBlank() && tokenClientId != null && !tokenClientId.equals(clientId)) {
+            if (tokenClientId != null && !clientAccepte.test(tokenClientId)) {
                 log.debug("Rejecting a Supabase token issued to another client: {}", tokenClientId);
                 return Optional.empty();
             }
